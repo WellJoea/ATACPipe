@@ -1,0 +1,24 @@
+. $1
+. $(dirname $(realpath $0))/env.Configure
+. $(dirname $(realpath $0))/env.Variable
+
+mkdir -p $MACS2cpout $MACS2cptmp
+echo "`date +%Y%m%d-%H:%M:%S`: MACS2 callpeak"
+
+INBAM=$2
+
+Name=$(basename $MACS2cppre)
+$MACS2 callpeak \
+    -t $INBAM \
+    -g ${MACS2_GSIZE} \
+    --outdir $MACS2cpout \
+    -n ${Name} \
+    --tempdir $MACS2cptmp \
+    -B \
+    --keep-dup 1 \
+    --nomodel --shift -100 --extsize 200 \
+    -q 0.05
+#$ATAC_BLACKLIST
+
+sort -k8,8nr ${MACS2cppre}_peaks.narrowPeak > ${MACS2cppre}_peaks.narrowPeak.sort8
+find $MACS2cpout -type f -name "*.narrowPeak" -exec echo -e {}"\t0,0,178" \; > ${MACS2cppre}_peaks.igv.txt
